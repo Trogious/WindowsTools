@@ -14,8 +14,8 @@ namespace AddToPath
 
         private string menuText = "Toggle in system Path";
         private IntPtr menuBmp = IntPtr.Zero;
-        private string verb = "toggleinpath";
-        private string verbCanonicalName = "ToggleInPath";
+        private string verb = "addtopath";
+        private string verbCanonicalName = "AddToPath";
         private string verbHelpText = "Toggle in system Path";
         private uint IDM_DISPLAY = 0;
 
@@ -42,19 +42,20 @@ namespace AddToPath
 
         void OnVerbDisplayFileName(IntPtr hWnd)
         {
-            bool added = false;
+            string resultInfo = "Added to";
             string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-            
+
             int foundAt = path.ToLower().IndexOf(this.selectedFolder.ToLower());
             if (foundAt >= 0)
             {
                 path = path.Remove(foundAt, this.selectedFolder.Length);
+                resultInfo = "Removed from";
             }
             else
             {
                 path += ";" + this.selectedFolder;
-                added = true;
             }
+            resultInfo += " system Path:" + Environment.NewLine + this.selectedFolder;
 
             if (path[0] == ';')
             {
@@ -67,7 +68,7 @@ namespace AddToPath
             path.Replace(";;", ";");
 
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Machine);
-            System.Windows.Forms.MessageBox.Show(added ? "Added." : "Removed.");
+            System.Windows.Forms.MessageBox.Show(resultInfo);
         }
         
         #region ComRegister

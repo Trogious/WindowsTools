@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace AddToPath
 {
@@ -54,7 +56,7 @@ namespace AddToPath
             path = path.Replace(";;", ";");
 
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Machine);
-            System.Windows.Forms.MessageBox.Show(resultInfo, "System Path modified.");
+            (new Thread(() => MessageBox.Show(resultInfo, "System Path modified."))).Start();
         }
         
         #region ComRegister
@@ -128,7 +130,7 @@ namespace AddToPath
             // The pDataObj pointer contains the objects being acted upon. In this 
             // example, we get an HDROP handle for enumerating the selected files 
             // and folders.
-            var dataObject = (IDataObject)Marshal.GetObjectForIUnknown(pDataObj);
+            var dataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)Marshal.GetObjectForIUnknown(pDataObj);
             dataObject.GetData(ref fe, out stm);
 
             try
@@ -253,6 +255,7 @@ namespace AddToPath
             }
 
             // Add a separator.
+            /*
             var sep = new MENUITEMINFO();
             sep.cbSize = (uint)Marshal.SizeOf(sep);
             sep.fMask = MIIM.MIIM_TYPE;
@@ -261,6 +264,7 @@ namespace AddToPath
             {
                 return Marshal.GetHRForLastWin32Error();
             }
+            */
 
             // Return an HRESULT value with the severity set to SEVERITY_SUCCESS. 
             // Set the code value to the offset of the largest command identifier 

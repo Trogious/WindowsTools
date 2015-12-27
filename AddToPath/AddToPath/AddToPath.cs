@@ -1,5 +1,4 @@
 ﻿using System;
-//using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -10,52 +9,39 @@ namespace AddToPath
     [Guid("F34D883A-D54C-4CAF-860F-7BA0E776D9D0"), ComVisible(true)]
     public class AddToPath : IShellExtInit, IContextMenu
     {
-        private string selectedFolder;
+        private string _selectedFolder;
 
-        private string menuText = "Toggle in system Path";
-        private IntPtr menuBmp = IntPtr.Zero;
-        private string verb = "addtopath";
-        private string verbCanonicalName = "AddToPath";
-        private string verbHelpText = "Toggle in system Path";
-        private uint IDM_DISPLAY = 0;
+        private const string MenuText = "Toggle in system Path";
+        private const string Verb = "addtopath";
+        private const string VerbCanonicalName = "AddToPath";
+        private const string VerbHelpText = "Toggle in system Path";
+// ReSharper disable InconsistentNaming
+        private const uint IDM_DISPLAY = 0;
+// ReSharper restore InconsistentNaming
 
-        public AddToPath()
+        void OnVerbToggleInPath()
         {
-            // Load the bitmap for the menu item.
-            /*
-            Bitmap bmp = System.Resources.OK;
-            bmp.MakeTransparent(bmp.GetPixel(0, 0));
-            this.menuBmp = bmp.GetHbitmap();
-             */
-        }
+            var resultInfo = "Added to";
+            var path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
 
-        ~AddToPath()
-        {
-/*
-            if (this.menuBmp != IntPtr.Zero)
+            if (path != null)
             {
-                NativeMethods.DeleteObject(this.menuBmp);
-                this.menuBmp = IntPtr.Zero;
-            }
- */
-        }
-
-        void OnVerbDisplayFileName(IntPtr hWnd)
-        {
-            string resultInfo = "Added to";
-            string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-
-            int foundAt = path.ToLower().IndexOf(this.selectedFolder.ToLower());
-            if (foundAt >= 0)
-            {
-                path = path.Remove(foundAt, this.selectedFolder.Length);
-                resultInfo = "Removed from";
+                var foundAt = path.IndexOf(_selectedFolder, StringComparison.OrdinalIgnoreCase);
+                if (foundAt >= 0)
+                {
+                    path = path.Remove(foundAt, _selectedFolder.Length);
+                    resultInfo = "Removed from";
+                }
+                else
+                {
+                    path += ";" + _selectedFolder;
+                }
             }
             else
             {
-                path += ";" + this.selectedFolder;
+                path = _selectedFolder;
             }
-            resultInfo += " system Path:" + Environment.NewLine + this.selectedFolder;
+            resultInfo += " system Path:" + Environment.NewLine + _selectedFolder;
 
             if (path[0] == ';')
             {
@@ -65,15 +51,15 @@ namespace AddToPath
             {
                 path = path.Remove(path.Length - 1);
             }
-            path.Replace(";;", ";");
+            path = path.Replace(";;", ";");
 
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Machine);
-            System.Windows.Forms.MessageBox.Show(resultInfo);
+            System.Windows.Forms.MessageBox.Show(resultInfo, "System Path modified.");
         }
         
         #region ComRegister
         
-        [ComRegisterFunction()]
+        [ComRegisterFunction]
         public static void Register(Type t)
         {
             try
@@ -90,7 +76,7 @@ namespace AddToPath
             }
         }
 
-        [ComUnregisterFunction()]
+        [ComUnregisterFunction]
         public static void Unregister(Type t)
         {
             try
@@ -119,54 +105,56 @@ namespace AddToPath
         /// A pointer to an IDataObject interface object that can be used to retrieve 
         /// the objects being acted upon.
         /// </param>
-        /// <param name="hKeyProgID">
+        /// <param name="hKeyProgId">
         /// The registry key for the file object or folder type.
         /// </param>
-        public void Initialize(IntPtr pidlFolder, IntPtr pDataObj, IntPtr hKeyProgID)
+        public void Initialize(IntPtr pidlFolder, IntPtr pDataObj, IntPtr hKeyProgId)
         {
             if (pDataObj == IntPtr.Zero)
             {
                 throw new ArgumentException();
             }
 
-            FORMATETC fe = new FORMATETC();
-            fe.cfFormat = (short)CLIPFORMAT.CF_HDROP;
-            fe.ptd = IntPtr.Zero;
-            fe.dwAspect = DVASPECT.DVASPECT_CONTENT;
-            fe.lindex = -1;
-            fe.tymed = TYMED.TYMED_HGLOBAL;
-            STGMEDIUM stm = new STGMEDIUM();
+            var fe = new FORMATETC
+            {
+                cfFormat = (short) CLIPFORMAT.CF_HDROP,
+                ptd = IntPtr.Zero,
+                dwAspect = DVASPECT.DVASPECT_CONTENT,
+                lindex = -1,
+                tymed = TYMED.TYMED_HGLOBAL
+            };
+            STGMEDIUM stm;
 
             // The pDataObj pointer contains the objects being acted upon. In this 
             // example, we get an HDROP handle for enumerating the selected files 
             // and folders.
-            IDataObject dataObject = (IDataObject)Marshal.GetObjectForIUnknown(pDataObj);
+            var dataObject = (IDataObject)Marshal.GetObjectForIUnknown(pDataObj);
             dataObject.GetData(ref fe, out stm);
 
             try
             {
                 // Get an HDROP handle.
-                IntPtr hDrop = stm.unionmember;
+                var hDrop = stm.unionmember;
                 if (hDrop == IntPtr.Zero)
                 {
                     throw new ArgumentException();
                 }
 
                 // Determine how many files are involved in this operation.
-                uint nFiles = NativeMethods.DragQueryFile(hDrop, UInt32.MaxValue, null, 0);
+                var nFiles = NativeMethods.DragQueryFile(hDrop, UInt32.MaxValue, null, 0);
 
                 // This code sample displays the custom context menu item when only 
                 // one file is selected. 
                 if (nFiles == 1)
                 {
                     // Get the path of the file.
-                    StringBuilder fileName = new StringBuilder(260);
+                    var fileName = new StringBuilder(260);
                     if (0 == NativeMethods.DragQueryFile(hDrop, 0, fileName,
                         fileName.Capacity))
                     {
                         Marshal.ThrowExceptionForHR(WinError.E_FAIL);
                     }
-                    this.selectedFolder = fileName.ToString();
+                    _selectedFolder = fileName.ToString();
                 }
                 else
                 {
@@ -250,22 +238,22 @@ namespace AddToPath
             }
 
             // Use either InsertMenu or InsertMenuItem to add menu items.
-            MENUITEMINFO mii = new MENUITEMINFO();
+            var mii = new MENUITEMINFO();
             mii.cbSize = (uint)Marshal.SizeOf(mii);
             mii.fMask = MIIM.MIIM_BITMAP | MIIM.MIIM_STRING | MIIM.MIIM_FTYPE |
                 MIIM.MIIM_ID | MIIM.MIIM_STATE;
             mii.wID = idCmdFirst + IDM_DISPLAY;
             mii.fType = MFT.MFT_STRING;
-            mii.dwTypeData = this.menuText;
+            mii.dwTypeData = MenuText;
             mii.fState = MFS.MFS_ENABLED;
-            mii.hbmpItem = this.menuBmp;
+            mii.hbmpItem = IntPtr.Zero;
             if (!NativeMethods.InsertMenuItem(hMenu, iMenu, true, ref mii))
             {
                 return Marshal.GetHRForLastWin32Error();
             }
 
             // Add a separator.
-            MENUITEMINFO sep = new MENUITEMINFO();
+            var sep = new MENUITEMINFO();
             sep.cbSize = (uint)Marshal.SizeOf(sep);
             sep.fMask = MIIM.MIIM_TYPE;
             sep.fType = MFT.MFT_SEPARATOR;
@@ -290,7 +278,7 @@ namespace AddToPath
         /// </param>
         public void InvokeCommand(IntPtr pici)
         {
-            bool isUnicode = false;
+            var isUnicode = false;
 
             // Determine which structure is being passed in, CMINVOKECOMMANDINFO or 
             // CMINVOKECOMMANDINFOEX based on the cbSize member of lpcmi. Although 
@@ -298,9 +286,9 @@ namespace AddToPath
             // structure, in practice it often points to a CMINVOKECOMMANDINFOEX 
             // structure. This struct is an extended version of CMINVOKECOMMANDINFO 
             // and has additional members that allow Unicode strings to be passed.
-            CMINVOKECOMMANDINFO ici = (CMINVOKECOMMANDINFO)Marshal.PtrToStructure(
+            var ici = (CMINVOKECOMMANDINFO)Marshal.PtrToStructure(
                 pici, typeof(CMINVOKECOMMANDINFO));
-            CMINVOKECOMMANDINFOEX iciex = new CMINVOKECOMMANDINFOEX();
+            var iciex = new CMINVOKECOMMANDINFOEX();
             if (ici.cbSize == Marshal.SizeOf(typeof(CMINVOKECOMMANDINFOEX)))
             {
                 if ((ici.fMask & CMIC.CMIC_MASK_UNICODE) != 0)
@@ -327,9 +315,9 @@ namespace AddToPath
             if (!isUnicode && NativeMethods.HighWord(ici.verb.ToInt32()) != 0)
             {
                 // Is the verb supported by this context menu extension?
-                if (Marshal.PtrToStringAnsi(ici.verb) == this.verb)
+                if (Marshal.PtrToStringAnsi(ici.verb) == Verb)
                 {
-                    OnVerbDisplayFileName(ici.hwnd);
+                    OnVerbToggleInPath(/*ici.hwnd*/);
                 }
                 else
                 {
@@ -345,9 +333,9 @@ namespace AddToPath
             else if (isUnicode && NativeMethods.HighWord(iciex.verbW.ToInt32()) != 0)
             {
                 // Is the verb supported by this context menu extension?
-                if (Marshal.PtrToStringUni(iciex.verbW) == this.verb)
+                if (Marshal.PtrToStringUni(iciex.verbW) == Verb)
                 {
-                    OnVerbDisplayFileName(ici.hwnd);
+                    OnVerbToggleInPath();
                 }
                 else
                 {
@@ -366,7 +354,7 @@ namespace AddToPath
                 // extension?
                 if (NativeMethods.LowWord(ici.verb.ToInt32()) == IDM_DISPLAY)
                 {
-                    OnVerbDisplayFileName(ici.hwnd);
+                    OnVerbToggleInPath();
                 }
                 else
                 {
@@ -403,34 +391,34 @@ namespace AddToPath
             StringBuilder pszName,
             uint cchMax)
         {
-            if (idCmd.ToUInt32() == IDM_DISPLAY)
-            {
-                switch ((GCS)uFlags)
-                {
-                    case GCS.GCS_VERBW:
-                        if (this.verbCanonicalName.Length > cchMax - 1)
-                        {
-                            Marshal.ThrowExceptionForHR(WinError.STRSAFE_E_INSUFFICIENT_BUFFER);
-                        }
-                        else
-                        {
-                            pszName.Clear();
-                            pszName.Append(this.verbCanonicalName);
-                        }
-                        break;
+            if (idCmd.ToUInt32() != IDM_DISPLAY)
+                return;
 
-                    case GCS.GCS_HELPTEXTW:
-                        if (this.verbHelpText.Length > cchMax - 1)
-                        {
-                            Marshal.ThrowExceptionForHR(WinError.STRSAFE_E_INSUFFICIENT_BUFFER);
-                        }
-                        else
-                        {
-                            pszName.Clear();
-                            pszName.Append(this.verbHelpText);
-                        }
-                        break;
-                }
+            switch ((GCS)uFlags)
+            {
+                case GCS.GCS_VERBW:
+                    if (VerbCanonicalName.Length > cchMax - 1)
+                    {
+                        Marshal.ThrowExceptionForHR(WinError.STRSAFE_E_INSUFFICIENT_BUFFER);
+                    }
+                    else
+                    {
+                        pszName.Clear();
+                        pszName.Append(VerbCanonicalName);
+                    }
+                    break;
+
+                case GCS.GCS_HELPTEXTW:
+                    if (VerbHelpText.Length > cchMax - 1)
+                    {
+                        Marshal.ThrowExceptionForHR(WinError.STRSAFE_E_INSUFFICIENT_BUFFER);
+                    }
+                    else
+                    {
+                        pszName.Clear();
+                        pszName.Append(VerbHelpText);
+                    }
+                    break;
             }
         }
 

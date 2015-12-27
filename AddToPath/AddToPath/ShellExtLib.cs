@@ -30,18 +30,18 @@ namespace AddToPath
 {
     #region Shell Interfaces
 
-    [ComImport(), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     [Guid("000214e8-0000-0000-c000-000000000046")]
     internal interface IShellExtInit
     {
         void Initialize(
             IntPtr /*LPCITEMIDLIST*/ pidlFolder,
             IntPtr /*LPDATAOBJECT*/ pDataObj,
-            IntPtr /*HKEY*/ hKeyProgID);
+            IntPtr /*HKEY*/ hKeyProgId);
     }
 
 
-    [ComImport(), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     [Guid("000214e4-0000-0000-c000-000000000046")]
     internal interface IContextMenu
     {
@@ -103,7 +103,7 @@ namespace AddToPath
                     {
                         // If the key exists and its default value is not empty, use 
                         // the ProgID as the file type.
-                        string defaultVal = key.GetValue(null) as string;
+                        var defaultVal = key.GetValue(null) as string;
                         if (!string.IsNullOrEmpty(defaultVal))
                         {
                             fileType = defaultVal;
@@ -157,7 +157,7 @@ namespace AddToPath
                     {
                         // If the key exists and its default value is not empty, use 
                         // the ProgID as the file type.
-                        string defaultVal = key.GetValue(null) as string;
+                        var defaultVal = key.GetValue(null) as string;
                         if (!string.IsNullOrEmpty(defaultVal))
                         {
                             fileType = defaultVal;
@@ -178,6 +178,7 @@ namespace AddToPath
 
     #region Enums & Structs
 
+// ReSharper disable InconsistentNaming
     internal enum GCS : uint
     {
         GCS_VERBA = 0x00000000,
@@ -226,7 +227,9 @@ namespace AddToPath
         public string parametersW;
         public string directoryW;
         public string titleW;
+// ReSharper disable FieldCanBeMadeReadOnly.Local
         POINT ptInvoke;
+// ReSharper restore FieldCanBeMadeReadOnly.Local
     }
 
     [Flags]
@@ -363,6 +366,7 @@ namespace AddToPath
         MFS_HILITE = 0x00000080,
         MFS_DEFAULT = 0x00001000
     }
+// ReSharper restore InconsistentNaming
 
     #endregion
 
@@ -465,6 +469,7 @@ namespace AddToPath
 
     internal static class WinError
     {
+// ReSharper disable InconsistentNaming
         public const int S_OK = 0x0000;
         public const int S_FALSE = 0x0001;
         public const int E_FAIL = -2147467259;
@@ -474,6 +479,7 @@ namespace AddToPath
 
         public const uint SEVERITY_SUCCESS = 0;
         public const uint SEVERITY_ERROR = 1;
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         /// Create an HRESULT value from component pieces.

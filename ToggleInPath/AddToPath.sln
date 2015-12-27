@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddToPath", "AddToPath\AddToPath.csproj", "{0A585C89-7436-4F62-9202-1AD07BF11646}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToggleInPath", "ToggleInPath\ToggleInPath.csproj", "{0A585C89-7436-4F62-9202-1AD07BF11646}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

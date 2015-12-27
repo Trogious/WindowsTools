@@ -5,17 +5,17 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace AddToPath
+namespace ToggleInPath
 {
     [ClassInterface(ClassInterfaceType.None)]
     [Guid("F34D883A-D54C-4CAF-860F-7BA0E776D9D0"), ComVisible(true)]
-    public class AddToPath : IShellExtInit, IContextMenu
+    public class ToggleInPath : IShellExtInit, IContextMenu
     {
         private string _selectedFolder;
 
         private const string MenuText = "Toggle in system Path";
-        private const string Verb = "addtopath";
-        private const string VerbCanonicalName = "AddToPath";
+        private const string Verb = "toggleinpath";
+        private const string VerbCanonicalName = "ToggleInPath";
         private const string VerbHelpText = "Toggle in system Path";
 // ReSharper disable InconsistentNaming
         private const uint IDM_DISPLAY = 0;
@@ -67,9 +67,9 @@ namespace AddToPath
             try
             {
                 ShellExtReg.RegisterShellExtContextMenuHandler(t.GUID, "Directory",
-                    "AddToPath.AddToPath Class");
+                    "ToggleInPath.ToggleInPath Class");
                 ShellExtReg.RegisterShellExtContextMenuHandler(t.GUID, "Folder",
-                    "AddToPath.AddToPath Class");
+                    "ToggleInPath.ToggleInPath Class");
             }
             catch (Exception ex)
             {

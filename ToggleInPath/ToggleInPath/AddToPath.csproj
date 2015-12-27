@@ -8,8 +8,8 @@
     <ProjectGuid>{0A585C89-7436-4F62-9202-1AD07BF11646}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AddToPath</RootNamespace>
-    <AssemblyName>AddToPath</AssemblyName>
+    <RootNamespace>ToggleInPath</RootNamespace>
+    <AssemblyName>ToggleInPath</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,21 +34,20 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>AddToPath.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>ToggleInPath.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddToPath.cs" />
+    <Compile Include="ToggleInPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShellExtLib.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AddToPath.snk" />
+    <None Include="ToggleInPath.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -26,7 +26,7 @@ using System.Runtime.InteropServices.ComTypes;
 #endregion
 
 
-namespace AddToPath
+namespace ToggleInPath
 {
     #region Shell Interfaces
 
